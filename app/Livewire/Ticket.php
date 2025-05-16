@@ -20,15 +20,16 @@ class Ticket extends Component
     public function mount()
     {
         SEOTools::setTitle('Your Ticket | R-Tix');
-        if (!empty(Session::get('confirmation_token')) && !auth()->user()) {
-            session()->flash('error', 'No seats selected.');
+        // dd($this->purchases);
+        if (empty(Session::get('confirmation_token')) && !auth()->user()) {
+            session()->flash('error', 'You Don`t have any orders recorded');
             return $this->redirect('/', navigate:true);
         } elseif (auth()->user()) {
-            if (Purchase::with('purchaseItems')->where('user_id', auth()->id())->first() !== null) {
-                $this->purchases = Purchase::with('purchaseItems')->where('user_id', auth()->id())->first()->get();
-            } else {
+            if (Purchase::with('purchaseItems')->where('user_id', auth()->id())->first() === null) {
                 session()->flash('error', 'You Don`t have any orders recorded');
                 return $this->redirect('/', navigate:true);
+            } else {
+                $this->purchases = Purchase::with('purchaseItems')->where('user_id', auth()->id())->first()->get();
             }
         } else {
             $this->confirmation_token = Session::get('confirmation_token');
