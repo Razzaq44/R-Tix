@@ -5,7 +5,7 @@
             <flux:heading class="uppercase font-bold">{{ auth()->user()->name }}</flux:heading>
         </div>
         <flux:heading class="mt-4">Email</flux:heading>
-
         <flux:input wire:model="email" disabled />
+
     </div>
 </div>
