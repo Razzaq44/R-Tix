@@ -140,7 +140,8 @@ class OrderDetails extends Component
                 'total_price',
                 'movie_name',
                 'selected_seats',
-                'showtime_id'
+                'showtime_id',
+                'confirmation_token',
             ]);
         
             session()->flash('warning', 'Your order has been canceled.');
