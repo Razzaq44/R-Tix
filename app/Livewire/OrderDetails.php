@@ -98,19 +98,40 @@ class OrderDetails extends Component
     public function applyVoucher()
     {
         if($this->voucher !== '') {
-            $voucher = Voucher::where('code', strtoupper($this->voucher))->first();
-            $discount = $voucher->discount_amount;
-            if ($voucher->discount_type === 'percent') {
-                $this->totalPrice = $this->totalPrice - ($this->totalPrice * ($discount / 100));
-            } else {
-                $this->totalPrice = $this->totalPrice - $discount;
+            DB::beginTransaction();
+            
+            try {
+                $voucher = Voucher::where('code', strtoupper($this->voucher))->first();
+    
+                if (!$voucher) {
+                    session()->flash('error', 'Kode voucher tidak ditemukan.');
+                    return $this->redirect('/order-details', navigate: true);
+                }
+    
+                if (!$voucher->isValid()) {
+                    session()->flash('error', 'Voucher sudah kadaluwarsa.');
+                    return $this->redirect('/order-details', navigate: true);
+                }
+                
+                $discount = $voucher->discount_amount;
+
+                if ($voucher->discount_type === 'percent') {
+                    $this->totalPrice = $this->totalPrice - ($this->totalPrice * ($discount / 100));
+                } else {
+                    $this->totalPrice = $this->totalPrice - $discount;
+                }
+                $purchase = Purchase::where('confirmation_token', $this->confirmation_token)->first();
+                $purchase->update([
+                    'voucher_id' => $voucher->id,
+                    'voucher_code' => $voucher->code,
+                    'price' => $this->totalPrice,
+                ]);
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollBack();
+                session()->flash('error', 'An error occurred while applying the voucher.');
+                return $this->redirect('/order-details', navigate: true);
             }
-            $purchase = Purchase::where('confirmation_token', $this->confirmation_token)->first();
-            $purchase->update([
-                'voucher_id' => $voucher->id,
-                'voucher_code' => $voucher->code,
-                'price' => $this->totalPrice,
-            ]);
         }
     }
 
