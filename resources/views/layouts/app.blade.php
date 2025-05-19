@@ -49,21 +49,17 @@
         <flux:brand href="#" logo="https://fluxui.dev/img/demo/dark-mode-logo.png" name="Acme Inc."
             class="px-2 hidden dark:flex" />
         <flux:navlist variant="outline">
-            <flux:navlist.item icon="home" href="/" class="@if (request->is('/')) font-bold @endif"
-                wire:navigate>Home</flux:navlist.item>
-            <flux:navlist.item icon="inbox" href="/profile" wire:current="" wire:navigate>Inbox</flux:navlist.item>
-            <flux:navlist.item icon="document-text" href="#">Documents</flux:navlist.item>
-            <flux:navlist.item icon="calendar" href="#">Calendar</flux:navlist.item>
-            <flux:navlist.group expandable heading="Favorites" class="max-lg:hidden">
-                <flux:navlist.item href="#">Marketing site</flux:navlist.item>
-                <flux:navlist.item href="#">Android app</flux:navlist.item>
-                <flux:navlist.item href="#">Brand guidelines</flux:navlist.item>
-            </flux:navlist.group>
+            <flux:navbar.item icon="home" href="/" class="@if (request->is('/')) font-bold @endif"
+                wire:navigate>Home</flux:navbar.item>
+            <flux:separator vertical variant="subtle" class="my-2" />
+            <flux:navbar.item icon="shopping-bag" href="/order-details" wire:navigate>Order
+            </flux:navbar.item>
+            <flux:separator vertical variant="subtle" class="my-2" />
+            <flux:navbar.item icon="ticket" href="/ticket" wire:navigate>Ticket</flux:navbar.item>
         </flux:navlist>
         <flux:spacer />
         <flux:navlist variant="outline">
-            <flux:navlist.item icon="cog-6-tooth" href="#">Settings</flux:navlist.item>
-            <flux:navlist.item icon="information-circle" href="#">Help</flux:navlist.item>
+
         </flux:navlist>
     </flux:sidebar>
 
