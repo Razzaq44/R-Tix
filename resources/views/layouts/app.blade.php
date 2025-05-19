@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html class="scroll-smooth">
 
 <head>
     {!! app('seotools')->generate() !!}
@@ -15,9 +15,7 @@
 <body class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <flux:header container class="bg-gray-100 dark:bg-gray-950">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-        <flux:brand href="#" logo="storage/Logo.png" name="R-Tix" class="max-lg:hidden dark:hidden" />
-        <flux:brand href="#" logo="https://fluxui.dev/img/demo/dark-mode-logo.png" name="SatStiTu"
-            class="max-lg:hidden! hidden dark:flex" />
+        <flux:brand href="/" logo="" name="R-Tix" class="max-lg:hidden dark:hidden" wire:navigate />
         <flux:spacer />
         <flux:navbar class="-mb-px max-lg:hidden">
             <flux:navbar.item icon="home" href="/" class="@if (request->is('/')) font-bold @endif"
