@@ -3,10 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\ShowingSeats;
 use Carbon\Carbon;
-use App\Models\Showtime;
-use App\Models\Movie;
 use Artesaos\SEOTools\Facades\SEOTools;
 use Illuminate\Support\Facades\Auth;
 
