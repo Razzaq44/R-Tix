@@ -47,12 +47,25 @@
                             Sign In</flux:button>
                     @endif
                     <flux:separator text="or" variant="subtle" />
-                    <flux:button href="{{ route('auth.google') }}">Sign In With Google</flux:button>
+                    <flux:button href="{{ route('auth.google') }}">
+                        <svg aria-label="Google logo" width="16" height="16" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 512 512">
+                            <g>
+                                <path d="m0 0H512V512H0" fill="#fff"></path>
+                                <path fill="#34a853" d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"></path>
+                                <path fill="#4285f4" d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"></path>
+                                <path fill="#fbbc02" d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"></path>
+                                <path fill="#ea4335" d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55">
+                                </path>
+                            </g>
+                        </svg>
+                        Sign In With Google
+                    </flux:button>
                 </div>
             </form>
         </div>
         <div
-            class="hidden md:flex basis-2/5 bg-center bg-cover w-full bg-[url(https://img.freepik.com/free-photo/low-angle-view-business-buildings-with-plane-flying_1359-480.jpg?t=st=1746523701~exp=1746527301~hmac=d7af6926c07d16675cf2e0a1ee1af1c621d2a8df32587325f9a625af10b2b629&w=900)] {{ $isSignUp ? 'rounded-s-lg' : 'rounded-e-lg' }} flex-1">
+            class="hidden md:flex basis-2/5 bg-center bg-cover w-full bg-[url(https://img.freepik.com/premium-vector/realistic-movie-night-advertising-poster-with-popcorn-bucket-3d-glasses-vector-illustration_1284-79161.jpg)] {{ $isSignUp ? 'rounded-s-lg' : 'rounded-e-lg' }} flex-1">
             <div class="flex flex-col justify-end w-full p-8 items-center py-16">
                 <flux:button class="w-full underline" variant="ghost"
                     wire:click="{{ $isSignUp ? 'showSignIn' : 'showSignUp' }}">{{ $isSignUp ? 'Sign In' : 'Sign Up' }}
