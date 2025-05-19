@@ -7,6 +7,7 @@ use App\Livewire\Dashboard;
 use App\Livewire\Profile;
 use App\Livewire\OrderDetails;
 use App\Livewire\Ticket;
+use App\Livewire\SelectSeat;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Auth\ForgotPassword;
 use App\Http\Controllers\PaymentConfirmation;
@@ -18,8 +19,8 @@ Route::get('/', Dashboard::class)->name('dashboard');
 Route::get('/profile', Profile::class)->name('profile');
 Route::get('/ticket', Ticket::class)->name('ticket');
 Route::get('/order-details', OrderDetails::class)->name('order.details');
-Route::get('/forgot-password', ForgotPassword::class)->name('forget.password');
-Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');
+Route::get('/select-seat/{showtime}', SelectSeat::class)->name('select.seat');
+
 
 Route::get('/payment/confirm', function() {
     return view('payment.confirm');});
@@ -32,6 +33,8 @@ Route::get('/ticket/paid/{confirmation_token}', [TicketController::class, 'paid'
 Route::get('/authentication', Authentication::class)->name('auth');
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::get('/forgot-password', ForgotPassword::class)->name('forget.password');
+Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');
 
 //Email Verification
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
