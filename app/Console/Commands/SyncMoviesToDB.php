@@ -9,6 +9,8 @@ use App\Models\ShowingSeats;
 use App\Models\Seat;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 class SyncMoviesToDB extends Command
 {
@@ -47,61 +49,80 @@ class SyncMoviesToDB extends Command
 
         $this->deletePastShowtimes();
 
-        $showDate = Carbon::today();
-        foreach ($showtimes as $dayData) {
-            foreach ($dayData['movies'] as $movieData) {
-                $movie = Movie::updateOrCreate(
-                    ['title' => $movieData['name']],
-                );
+        DB::beginTransaction();
 
-                $showDateStr = $showDate->toDateString();
-                $existingShowtimes = Showtime::where('movie_id', $movie->id)
-                    ->where('show_date', $showDateStr)
-                    ->get();
-
-                foreach ($movieData['showing'] as $showing) {
-                    foreach ($showing['time'] as $time) {
-                        $timeStr = Carbon::parse($time)->toTimeString();
-
-                        $exists = $existingShowtimes->firstWhere(function ($s) use ($timeStr, $showing) {
-                            return $s->time === $timeStr && $s->type === $showing['type'];
-                        });
-
-                        if (!$exists) {
-                            $slug = $this->generateUniqueSlug($movie->title);
-
-                            $showtime = Showtime::create([
-                                'movie_id' => $movie->id,
-                                'show_date' => $showDateStr,
-                                'time' => $timeStr,
-                                'type' => $showing['type'],
-                                'slug' => $slug,
-                            ]);
-
-                            $this->addSeatsForShowtime($showtime);
+        try {
+            $showDate = Carbon::today();
+            foreach ($showtimes as $dayData) {
+                foreach ($dayData['movies'] as $movieData) {
+                    $movie = Movie::updateOrCreate(
+                        ['title' => $movieData['name']],
+                    );
+    
+                    $showDateStr = $showDate->toDateString();
+                    $existingShowtimes = Showtime::where('movie_id', $movie->id)
+                        ->where('show_date', $showDateStr)
+                        ->get();
+    
+                    foreach ($movieData['showing'] as $showing) {
+                        foreach ($showing['time'] as $time) {
+                            $timeStr = Carbon::parse($time)->toTimeString();
+    
+                            $exists = $existingShowtimes->firstWhere(function ($s) use ($timeStr, $showing) {
+                                return $s->time === $timeStr && $s->type === $showing['type'];
+                            });
+    
+                            if (!$exists) {
+                                $slug = $this->generateUniqueSlug($movie->title);
+    
+                                $showtime = Showtime::create([
+                                    'movie_id' => $movie->id,
+                                    'show_date' => $showDateStr,
+                                    'time' => $timeStr,
+                                    'type' => $showing['type'],
+                                    'slug' => $slug,
+                                ]);
+    
+                                $this->addSeatsForShowtime($showtime);
+                            }
                         }
                     }
                 }
+                $showDate->addDay();
             }
-            $showDate->addDay();
+
+            DB::commit();
+
+            $this->info('Movies and showtimes synchronized successfully.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $this->info('Failed to sync movies '. $e);
         }
 
-        $this->info('Movies and showtimes synchronized successfully.');
     }
 
     protected function deletePastShowtimes() 
     {
         $today = Carbon::today();
 
-        Showtime::where('show_date', '<', $today)->delete();
+        DB::beginTransaction();
+        
+        try {
+            Showtime::where('show_date', '<', $today)->delete();
+    
+            $moviesToDelete = Movie::whereDoesntHave('showtimes')->get();
+    
+            foreach ($moviesToDelete as $movie) {
+                $movie->delete();
+            }
 
-        $moviesToDelete = Movie::whereDoesntHave('showtimes')->get();
+            DB::commit();
 
-        foreach ($moviesToDelete as $movie) {
-            $movie->delete();
+            $this->info('Past showtimes and unused movies have been deleted.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $this->info('Failed to delete past showtimes '. $e);
         }
-
-        $this->info('Past showtimes and unused movies have been deleted.');
     }
 
     /**
