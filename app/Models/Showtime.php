@@ -15,6 +15,7 @@ class Showtime extends Model
         'show_date',
         'time',
         'type',
+        'slug',
     ];
 
     public function getRouteKeyName()
