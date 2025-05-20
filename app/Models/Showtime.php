@@ -17,17 +17,6 @@ class Showtime extends Model
         'type',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($showtime) {
-            $title = $showtime->movie ? $showtime->movie->title : 'jadwal';
-            $slugBase = Str::slug($title . '-' . now()->timestamp);
-            $showtime->slug = $slugBase;
-        });
-    }
-
     public function getRouteKeyName()
     {
         return 'slug';

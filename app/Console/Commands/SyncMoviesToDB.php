@@ -8,6 +8,7 @@ use App\Models\Showtime;
 use App\Models\ShowingSeats;
 use App\Models\Seat;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class SyncMoviesToDB extends Command
 {
@@ -53,17 +54,32 @@ class SyncMoviesToDB extends Command
                     ['title' => $movieData['name']],
                 );
 
+                $showDateStr = $showDate->toDateString();
+                $existingShowtimes = Showtime::where('movie_id', $movie->id)
+                    ->where('show_date', $showDateStr)
+                    ->get();
+
                 foreach ($movieData['showing'] as $showing) {
                     foreach ($showing['time'] as $time) {
-                        $showtime = Showtime::updateOrCreate(
-                            [
+                        $timeStr = Carbon::parse($time)->toTimeString();
+
+                        $exists = $existingShowtimes->firstWhere(function ($s) use ($timeStr, $showing) {
+                            return $s->time === $timeStr && $s->type === $showing['type'];
+                        });
+
+                        if (!$exists) {
+                            $slug = $this->generateUniqueSlug($movie->title);
+
+                            $showtime = Showtime::create([
                                 'movie_id' => $movie->id,
-                                'show_date' => $showDate->toDateString(),
-                                'time' => Carbon::parse($time)->toTimeString(),
+                                'show_date' => $showDateStr,
+                                'time' => $timeStr,
                                 'type' => $showing['type'],
-                            ]
-                        );
-                        $this->addSeatsForShowtime($showtime);
+                                'slug' => $slug,
+                            ]);
+
+                            $this->addSeatsForShowtime($showtime);
+                        }
                     }
                 }
             }
@@ -116,5 +132,24 @@ class SyncMoviesToDB extends Command
         }
 
         ShowingSeats::insert($showingSeats);
+    }
+
+    /**
+     * Generate unique slug for showtime
+     *
+     * @param string $title
+     * @return string
+     */
+    protected function generateUniqueSlug($title)
+    {
+        $baseSlug = Str::slug($title);
+        $slug = $baseSlug;
+        $count = 1;
+
+        while (Showtime::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $count++;
+        }
+
+        return $slug;
     }
 }
