@@ -8,10 +8,10 @@ use App\Console\Commands\CacheShowtimes;
 use App\Console\Commands\SyncMoviesToDB;
 use App\Console\Commands\DeleteExpiredShowtime;
 
-Schedule::command(DeleteExpiredPurchases::class)->timezone('Asia/Jakarta')->everyMinute();
-Schedule::command(DeleteExpiredShowtime::class)->timezone('Asia/Jakarta')->everyThirtyMinutes();
-Schedule::command(CacheShowtimes::class)->timezone('Asia/Jakarta')->at('3:01');
-Schedule::command(SyncMoviesToDB::class)->timezone('Asia/Jakarta')->at('3:30');
+Schedule::command(DeleteExpiredPurchases::class)->timezone('America/Chicago')->everyMinute();
+Schedule::command(DeleteExpiredShowtime::class)->timezone('America/Chicago')->daily();
+Schedule::command(CacheShowtimes::class)->timezone('America/Chicago')->at('00:01');
+Schedule::command(SyncMoviesToDB::class)->timezone('America/Chicago')->at('00:05');
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
