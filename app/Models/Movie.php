@@ -11,6 +11,7 @@ class Movie extends Model
 
     protected $fillable = [
         'title',
+        'url_image',
     ];
 
     public function showtimes()

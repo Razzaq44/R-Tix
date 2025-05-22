@@ -75,6 +75,7 @@ class Dashboard extends Component
                 'movies' => $movies->map(function ($movie) {
                     return [
                         'title' => $movie->title,
+                        'image' => $movie->url_image,
                         'showing' => $movie->showtimes->map(function ($showtime) {
                             return [
                                 'id' => $showtime->id,

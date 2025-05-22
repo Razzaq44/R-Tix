@@ -91,6 +91,8 @@ class SyncMoviesToDB extends Command
                 $showDate->addDay();
             }
 
+            $this->addUrlImageToDB();
+
             DB::commit();
 
             $this->info('Movies and showtimes synchronized successfully.');
@@ -98,7 +100,6 @@ class SyncMoviesToDB extends Command
             DB::rollBack();
             $this->info('Failed to sync movies '. $e);
         }
-
     }
 
     protected function deletePastShowtimes() 
@@ -172,5 +173,45 @@ class SyncMoviesToDB extends Command
         }
 
         return $slug;
+    }
+
+    /**
+     * Generate unique slug for showtime
+     *
+     * @param 
+     */
+
+    protected function addUrlImageToDB()
+    {
+        $cacheFilePath = storage_path('app/movies.json');
+
+        if (!file_exists($cacheFilePath)) {
+            $this->error('Cache file not found.');
+            return;
+        }
+
+        $cachedMovies = json_decode(file_get_contents($cacheFilePath), true);
+        if (!$cachedMovies || !is_array($cachedMovies)) {
+            $this->error('Invalid movie data in cache.');
+            return;
+        }
+
+        $movies = Movie::all();
+
+        foreach ($movies as $movie) {
+            foreach ($cachedMovies as $cachedMovie) {
+                if (strtolower(trim($movie->title)) === strtolower(trim($cachedMovie['name'] ?? ''))) {
+                    $urlImage = $cachedMovie['image'] ?? null;
+                    if ($urlImage && $movie->url_image !== $urlImage) {
+                        $movie->url_image = $urlImage;
+                        $movie->save();
+                        $this->info("Updated image for: {$movie->title}");
+                    }
+                    break;
+                }
+            }
+        }
+
+        $this->info("Image URLs updated in database.");
     }
 }
