@@ -12,7 +12,7 @@
         @if (empty($showtimes))
             <flux:heading size="xl">No showtimes found</flux:heading>
         @else
-            <div class="flex gap-4 overflow-auto">
+            <div class="flex gap-4 overflow-auto no-scrollbar">
                 @foreach ($showtimes as $showtime)
                     <div class="mt-4">
                         <flux:button wire:click="setActiveTabDay('{{ $showtime['day'] }}')" class=""
@@ -23,34 +23,43 @@
                 @endforeach
             </div>
 
-            <div class="mt-4 w-full">
+            <div class="w-full my-4">
                 @foreach ($movies[$date]['movies'] ?? [] as $movie)
-                    <div class="p-4 rounded shadow mb-4">
-                        <flux:heading size="xl" class="text-lg font-bold">{{ $movie['title'] }}</flux:heading>
-                        @php
-                            $groupedShowtimes = collect($movie['showing'])->groupBy('type');
-                        @endphp
+                    <div class="rounded-xl shadow shadow-accent/20 p-4 mb-6">
+                        <flux:heading size="xl" class="text-lg font-bold mb-6">{{ $movie['title'] }}</flux:heading>
+                        <div class="flex flex-col lg:flex-row gap-8">
+                            <img src="{{ $movie['image'] }}" alt="{{ $movie['title'] }}" class="w-32 h-48 rounded-2xl">
 
-                        @foreach ($groupedShowtimes as $type => $showtimes)
-                            <div class="mt-3 grid grid-cols-2 gap-3 items-center">
-                                <flux:heading class="uppercase w-fit">{{ $type }}</flux:heading>
-                                <div class="flex flex-wrap gap-2">
-                                    @foreach ($showtimes as $showtime)
-                                        @php
-                                            $showDateTime = \Carbon\Carbon::parse(
-                                                $date . ' ' . $showtime['time'],
-                                            )->addMinutes(15);
-                                        @endphp
-                                        @if ($showDateTime->isFuture())
-                                            <flux:button wire:click="goToSelectSeat({{ $showtime['id'] }})"
-                                                wire:navigate>
-                                                {{ $showtime['time'] }}
-                                            </flux:button>
-                                        @endif
-                                    @endforeach
-                                </div>
+                            @php
+                                $groupedShowtimes = collect($movie['showing'])->groupBy('type');
+                            @endphp
+
+                            <div class="md:grid grid-cols-5 gap-8 p-4 md:items-center flex-col flex">
+                                @foreach ($groupedShowtimes as $type => $showtimes)
+                                    <flux:heading class="uppercase w-32">{{ $type }}
+                                    </flux:heading>
+                                    <div class="flex flex-wrap gap-2 col-span-4">
+                                        @foreach ($showtimes as $showtime)
+                                            @php
+                                                $showDateTime = \Carbon\Carbon::parse(
+                                                    $date . ' ' . $showtime['time'],
+                                                )->addMinutes(15);
+                                            @endphp
+                                            @if ($showDateTime->isFuture())
+                                                <flux:button wire:click="goToSelectSeat({{ $showtime['id'] }})"
+                                                    wire:navigate>
+                                                    {{ $showtime['time'] }}
+                                                </flux:button>
+                                            @else
+                                                <flux:button disabled>
+                                                    {{ $showtime['time'] }}
+                                                </flux:button>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
+                        </div>
                     </div>
                 @endforeach
             </div>
